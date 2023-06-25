@@ -46,7 +46,7 @@ public class Order {
     public void makeDiscount() {
         Random r = new Random();
         Discont[] disconts = Discont.values();
-        this.discont = disconts[r.nextInt(1, disconts.length)].getCode();
+        this.discont = disconts[r.nextInt(0, disconts.length)].getCode();
         this.price = (product.getPrice() * amountOfProducts) - (product.getPrice() * amountOfProducts) * discont / 100;
     }
 

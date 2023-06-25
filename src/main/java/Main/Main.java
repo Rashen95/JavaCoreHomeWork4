@@ -62,6 +62,9 @@ public class Main {
                 "+79381134459",
                 "+79381134455"
         };
+        short[] amountProduct = {
+                -5, 25, 10, 10, 50
+        };
 
         // Инициализация пустого массива заказов на 5 элементов
         Order[] orders = new Order[5];
@@ -69,24 +72,18 @@ public class Main {
         // Наполнение массива заказов (с учетом скидки)
         for (int i = 0; i < orders.length; i++) {
             try {
-                orders[i] = makeAPurchase(phoneNumbers[i], productNames[i], (short) (98 + i));
+                orders[i] = makeAPurchase(phoneNumbers[i], productNames[i], amountProduct[i]);
                 orders[i].makeDiscount();
-            } catch (ProductException e) {
-                System.out.println(e.getMessage() + " " + productNames[i] + ". Заказ не оформлен");
+            } catch (ProductException | CustomerException e) {
+                System.out.println(e.getMessage());
             } catch (AmountException e) {
                 System.out.println(e.getMessage());
                 try {
                     orders[i] = makeAPurchase(phoneNumbers[i], productNames[i], (short) 1);
                     orders[i].makeDiscount();
-                } catch (ProductException ex) {
-                    System.out.println(e.getMessage() + " " + productNames[i] + ". Заказ не оформлен");
-                } catch (AmountException ex) {
+                } catch (ProductException | AmountException | CustomerException ex) {
                     System.out.println(ex.getMessage());
-                } catch (CustomerException ex) {
-                    System.out.println(ex.getMessage() + " " + phoneNumbers[i] + ". Завершение программы");
                 }
-            } catch (CustomerException e) {
-                System.out.println(e.getMessage() + " " + phoneNumbers[i] + ". Завершение программы");
             }
         }
 
@@ -123,7 +120,7 @@ public class Main {
             }
         }
         if (buyer == null) {
-            throw new CustomerException();
+            throw new CustomerException(String.format("Покупатель с номером %s не найден. Заказ отменен.\n", buyersPhoneNumber));
         }
         for (Product p : products) {
             if (productName.equals(p.getNameProduct())) {
@@ -131,10 +128,11 @@ public class Main {
             }
         }
         if (product == null) {
-            throw new ProductException();
+            throw new ProductException(String.format("Товара %s нет в данном магазине. Заказ отменен.\n", productName));
         }
         if (quantityOfGoodsPurchased <= 0 || quantityOfGoodsPurchased > 100) {
-            throw new AmountException();
+            throw new AmountException(String.format("Вы не можете заказать %s в количестве %d. " +
+                    "Количество изменено на 1.\n", productName, quantityOfGoodsPurchased));
         }
         return new Order(buyer, product, quantityOfGoodsPurchased);
     }
